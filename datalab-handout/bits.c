@@ -184,7 +184,9 @@ int allOddBits(int x)
 {
   int tmp = 0xAA; //0x0101
   int pattern = tmp | (tmp << 4) | (tmp << 8) | (tmp << 16) | (tmp << 24);
-  int result = x &pattern int zeroThenTrue = result ^ pattern return !!(zeroThenTrue)
+  int result = x &pattern;
+  int zeroThenTrue = result ^ pattern; 
+  return !!(zeroThenTrue);
 }
 /* 
  * negate - return -x 
@@ -209,7 +211,15 @@ int negate(int x)
  */
 int isAsciiDigit(int x)
 {
-  return 2;
+    /* return 1 when x is between 0x...00110000 ~ 0x..00110101
+     * condition 1: the first (31-3) characters should be 0x...00110
+     * condition 2: the last 3 characters can be anything rather than 111 and 110
+     */
+    int c1 = !((x>>3)^(0x30>>3));
+    int c2 = (x^0x3A);
+    int c3 = (x^0x3B);
+    return (c1 & c2 & c3);
+
 }
 /* 
  * conditional - same as x ? y : z 
@@ -220,10 +230,10 @@ int isAsciiDigit(int x)
  */
 int conditional(int x, int y, int z)
 {
-  /* when x is True, we just  need to  output (oxFFF...FF & y | 0x00..00&z)*/
-  int TrueMask = !x + ~0;    // 111...111 if x is True, 00..00 if x is false
-  int FalseMask = !TrueMask; //00...00
-  return (TrueMask & y | FalseMask & z)
+    /* when x is True, we just  need to  output (oxFFF...FF & y | 0x00..00&z)*/
+    int TrueMask = !x + ~0;    // 111...111 if x is True, 00..00 if x is false
+    int FalseMask = !TrueMask; //00...00
+    return (TrueMask & y | FalseMask & z);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -234,7 +244,7 @@ int conditional(int x, int y, int z)
  */
 int isLessOrEqual(int x, int y)
 {
-  return !((y+~x+1)>>31)
+    return !((y+~x+1)>>31);
 }
 //4
 /* 
@@ -247,7 +257,8 @@ int isLessOrEqual(int x, int y)
  */
 int logicalNeg(int x)
 {
-  return 2;
+  //(sgn(x)|sgn(-x)) == 1 iff x!=0
+  return ((x|(~x+1))>>31)+1; 
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -263,7 +274,20 @@ int logicalNeg(int x)
  */
 int howManyBits(int x)
 {
-  return 0;
+  int sign = x>>31;
+  x = (sign&~x|~sign&x);  //conditional x = x>0 ? x:(~x);
+  //find the most significant "1" in the bit string
+  int b16, b8, b4, b2, b0;
+  b16 = !!(x>>16)<<4; //=16 when there is a "1" in high 16 positions, otherwise = 0
+  x = (x>>b16);
+  b8 = !!(x>>8)<<3;
+  x = (x>>b8);
+  b4 = !!(x>>4)<<2;
+  x = (x>>b4);
+  b2 = !!(x>>2)<<1;
+  x = (x>>b2);
+  b0 = !!x;
+  return (b0+b2+b4+b8+b16)+1; 
 }
 //float
 /* 
