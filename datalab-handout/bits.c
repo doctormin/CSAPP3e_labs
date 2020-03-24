@@ -303,7 +303,19 @@ int howManyBits(int x)
  */
 unsigned floatScale2(unsigned uf)
 {
-  return 2;
+  unsigned frc = (uf & 0x007fffff);
+  unsigned exp = (uf & 0x7f800000) >> 23;
+  unsigned sgn = (uf & 0x80000000);
+  //NaN or infinite
+  if(exp==0xff) //256-1=255
+    return uf;
+  //ifinity
+  if(exp==0)
+    return (uf<<1)|sgn;
+  exp++;
+  if(exp==0xff)//return the ifinite with the same sign
+    return(sgn|0x7f800000);
+  return(sgn|(exp+1)<<23|frc);
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
