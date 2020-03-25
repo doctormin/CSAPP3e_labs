@@ -143,7 +143,7 @@ NOTES:
  */
 int bitXor(int x, int y)
 {
-  return (~x & y) | (x & ~y);
+  return ~(x&y)&~(~x&~y);
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -167,10 +167,9 @@ int tmin(void)
 int isTmax(int x)
 {
   //Tmax: 0111..1
-  int negative = (x >> 31) & 1; //iff x < 0: negative = 1
-  int i = x + 1;                //if Tmax: 1000..0 && iff Tmax: i[0] = 1
-  int isTmax = (i >> 31) & 1;
-  return (!negative) & isTmax;
+  int condition1 = !((~x)^(x+1));   //iff Tmax and -1 => condition1 = 1
+  int condition2 = !!(x+1); //iff -1 => condition2 = 1
+  return condition1&condition2;
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -186,7 +185,7 @@ int allOddBits(int x)
   int pattern = tmp | (tmp << 4) | (tmp << 8) | (tmp << 16) | (tmp << 24);
   int result = x &pattern;
   int zeroThenTrue = result ^ pattern; 
-  return !!(zeroThenTrue);
+  return !(zeroThenTrue);
 }
 /* 
  * negate - return -x 
@@ -211,14 +210,19 @@ int negate(int x)
  */
 int isAsciiDigit(int x)
 {
-    /* return 1 when x is between 0x...00110000 ~ 0x..00110101
-     * condition 1: the first (31-3) characters should be 0x...00110
-     * condition 2: the last 3 characters can be anything rather than 111 and 110
+    /* return 1 when x is between 0x...0011 0000 ~ 0x..0011 1001
+     * condition 1: the first (31-3) characters should be 0x...0011
+     * condition 2: the last 4 characters can be anything rather than A,B,C,D,E and F
      */
-    int c1 = !((x>>3)^(0x30>>3));
-    int c2 = (x^0x3A);
-    int c3 = (x^0x3B);
-    return (c1 & c2 & c3);
+    int c1 = !((x >> 4)^(0x30 >> 4));
+    int c2 = !!(x^0x3a);
+    int c3 = !!(x^0x3b);
+    int c4 = !!(x^0x3c);
+    int c5 = !!(x^0x3d);
+    int c6 = !!(x^0x3e);
+    int c7 = !!(x^0x3f);
+
+    return (c1 & c2 & c3 & c4 & c5 & c6 & c7);
 
 }
 /* 
@@ -230,10 +234,10 @@ int isAsciiDigit(int x)
  */
 int conditional(int x, int y, int z)
 {
-    /* when x is True, we just  need to  output (oxFFF...FF & y | 0x00..00&z)*/
+    /* when x is True, we just  need to  output (0xFFF...FF & y | 0x00..00&z)*/
     int TrueMask = !x + ~0;    // 111...111 if x is True, 00..00 if x is false
-    int FalseMask = !TrueMask; //00...00
-    return (TrueMask & y | FalseMask & z);
+    int FalseMask = ~TrueMask; //00...00
+    return (TrueMask & y)|(FalseMask & z);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -244,11 +248,22 @@ int conditional(int x, int y, int z)
  */
 int isLessOrEqual(int x, int y)
 {
-    return !((y+~x+1)>>31);
+  /*不能直接作差，会正负溢出以及Tmin没有对应负值*/
+  int sgn_x = (x>>31)&1;
+  int sgn_y = (y>>31)&1;  if(!(x^(1<<31)))
+    return 1;
+  if(sgn_x&~sgn_y)  //x<0 and y>=0 (may lead to overflow)
+    return 1;
+  if(~sgn_x&sgn_y) //x>=0 and y<0 (may lead to underflow)
+    return 0;
+  if(!(x^(1<<31))) //Tmin doesn't have a negative counterpart
+    return 1;
+  return !((y+~x+1)>>31); //sgn(y-x) 
 }
 //4
 /* 
- * logicalNeg - implement the ! operator, using all of 
+ * logicalNeg -its.c:369:floatPower2: Illegal constant type (0.)
+ implement the ! operator, using all of 
  *              the legal operators except !
  *   Examples: logicalNeg(3) = 0, logicalNeg(0) = 1
  *   Legal ops: ~ & ^ | + << >>
@@ -274,20 +289,22 @@ int logicalNeg(int x)
  */
 int howManyBits(int x)
 {
-  int sign = x>>31;
-  x = (sign&~x|~sign&x);  //conditional x = x>0 ? x:(~x);
+  int b16, b8, b4, b2, b1, b0;
+  int sign = x >> 31;
+  x = (sign & ~x)|(~sign & x);  //conditional x = x>0 ? x:(~x);
   //find the most significant "1" in the bit string
-  int b16, b8, b4, b2, b0;
-  b16 = !!(x>>16)<<4; //=16 when there is a "1" in high 16 positions, otherwise = 0
-  x = (x>>b16);
+  b16 = !!(x >> 16) << 4; //=16 when there is a "1" in high 16 positions, otherwise = 0
+  x >>= b16;
   b8 = !!(x>>8)<<3;
-  x = (x>>b8);
+  x >>= b8;
   b4 = !!(x>>4)<<2;
-  x = (x>>b4);
+  x >>= b4;
   b2 = !!(x>>2)<<1;
-  x = (x>>b2);
-  b0 = !!x;
-  return (b0+b2+b4+b8+b16)+1; 
+  x >>= b2;
+  b1 = !!(x >> 1) << 0;
+  x >>= b1;
+  b0 = x;
+  return b0+b1+b2+b4+b8+b16+1; 
 }
 //float
 /* 
@@ -315,13 +332,13 @@ unsigned floatScale2(unsigned uf)
   exp++;
   if(exp==0xff)//return the ifinite with the same sign
     return(sgn|0x7f800000);
-  return(sgn|(exp+1)<<23|frc);
+  return(sgn|exp<<23|frc);
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
  *   for floating point argument f.
- *   Argument is passed as unsigned int, but
- *   it is to be interpreted as the bit-level representation of a
+ *   Argument is passed as 
+ *   When argd as the bit-level representation of a
  *   single-precision floating point value.
  *   Anything out of range (including NaN and infinity) should return
  *   0x80000000u.
@@ -331,7 +348,21 @@ unsigned floatScale2(unsigned uf)
  */
 int floatFloat2Int(unsigned uf)
 {
-  return 2;
+  unsigned frc = (uf & 0x007fffff)|0x00800000;  //frc = 1.f << 23
+  int exp = ((uf & 0x7f800000) >> 23)-127;
+  unsigned sgn = (uf & 0x80000000);
+  if(exp<0) //the floating is less than 1 => 0(int)  (underflow)
+    return 0; 
+  if(exp>=31) //overflow
+    return 0x80000000u;
+  if(exp<=23)
+    frc>>=(23-exp);
+  else
+    frc<<=(exp-23);
+  if(!sgn)
+      return frc;
+  else 
+      return ~frc+1;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -348,5 +379,14 @@ int floatFloat2Int(unsigned uf)
  */
 unsigned floatPower2(int x)
 {
-  return 2;
+  /*2.0 = 1*1.0*2^1  => frc=0, sgn=0, exp=127+1
+  2.0^x = 1*1.0*2^x => frc=0, sgn=0, exp=127+x
+  */
+  unsigned positive_INF = 0x7f800000;
+  int exp = x+127;
+  if(exp<=0) 
+    return 0;
+  if(exp>=255)
+    return positive_INF;
+  return exp<<23;
 }
