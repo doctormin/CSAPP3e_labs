@@ -1,5 +1,4 @@
 # scores of my datalab 
-
  <table>
         <tr>
             <th>Score</th>
