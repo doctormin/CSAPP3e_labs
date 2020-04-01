@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
      * fantastic GUI on it. */
 
     /* When run with no arguments, the bomb reads its input lines 
-     * from standard inp15-213 Fall 20xxLab Assignment L2: Defusing a Binary BombAssigned: Sept. 13, Due: Friday Sept. 22Harry Bovik (bovik@cs.cmu.edu) is the lead person for this lab.1    IntroductionThe nefariousDr. Evilhas planted a slew of “binary bombs” on our class machines.  A binary bomb is aprogut. */
+     * from standard input 15-213 Fall 20xxLab Assignment L2: Defusing a Binary BombAssigned: Sept. 13, Due: Friday Sept. 22Harry Bovik (bovik@cs.cmu.edu) is the lead person for this lab.1    IntroductionThe nefariousDr. Evilhas planted a slew of “binary bombs” on our class machines.  A binary bomb is aprogut. */
     if (argc == 1) {  
 	infile = stdin;
     } 
