@@ -382,86 +382,89 @@ Disassembly of section .text:
 
 0000000000400f43 <phase_3>:
   400f43:	48 83 ec 18          	sub    rsp,0x18
-  400f47:	48 8d 4c 24 0c       	lea    rcx,[rsp+0xc]
-  400f4c:	48 8d 54 24 08       	lea    rdx,[rsp+0x8]
-  400f51:	be cf 25 40 00       	mov    esi,0x4025cf
-  400f56:	b8 00 00 00 00       	mov    eax,0x0
+  400f47:	48 8d 4c 24 0c       	lea    rcx,[rsp+0xc] //12 ->  输入的第二位
+  400f4c:	48 8d 54 24 08       	lea    rdx,[rsp+0x8] //8 ->  输入的第一位
+  400f51:	be cf 25 40 00       	mov    esi,0x4025cf  //sscanf的format: "%d%d"
+  400f56:	b8 00 00 00 00       	mov    eax,0x0 //sscanf的返回值， 成功读入的个数
   400f5b:	e8 90 fc ff ff       	call   400bf0 <__isoc99_sscanf@plt>
-  400f60:	83 f8 01             	cmp    eax,0x1
+  400f60:	83 f8 01             	cmp    eax,0x1 //eax要比1大就行，也就是说读入两个参数
   400f63:	7f 05                	jg     400f6a <phase_3+0x27>
   400f65:	e8 d0 04 00 00       	call   40143a <explode_bomb>
-  400f6a:	83 7c 24 08 07       	cmp    DWORD PTR [rsp+0x8],0x7
-  400f6f:	77 3c                	ja     400fad <phase_3+0x6a>
-  400f71:	8b 44 24 08          	mov    eax,DWORD PTR [rsp+0x8]
-  400f75:	ff 24 c5 70 24 40 00 	jmp    QWORD PTR [rax*8+0x402470]
-  400f7c:	b8 cf 00 00 00       	mov    eax,0xcf
-  400f81:	eb 3b                	jmp    400fbe <phase_3+0x7b>
-  400f83:	b8 c3 02 00 00       	mov    eax,0x2c3
+  400f6a:	83 7c 24 08 07       	cmp    DWORD PTR [rsp+0x8],0x7 //必须输入的第一位<=0x7
+  400f6f:	77 3c                	ja     400fad <phase_3+0x6a> //会爆炸
+  400f71:	8b 44 24 08          	mov    eax,DWORD PTR [rsp+0x8] // 输入的第一位
+  400f75:	ff 24 c5 70 24 40 00 	jmp    QWORD PTR [rax*8+0x402470] //优化后的switch指令
+  //x=0
+    400f7c:	b8 cf 00 00 00       	mov    eax,0xcf
+    400f81:	eb 3b                	jmp    400fbe <phase_3+0x7b>
+  + 400f83:	b8 c3 02 00 00       	mov    eax,0x2c3
   400f88:	eb 34                	jmp    400fbe <phase_3+0x7b>
-  400f8a:	b8 00 01 00 00       	mov    eax,0x100
+  + 400f8a:	b8 00 01 00 00       	mov    eax,0x100
   400f8f:	eb 2d                	jmp    400fbe <phase_3+0x7b>
-  400f91:	b8 85 01 00 00       	mov    eax,0x185
+  + 400f91:	b8 85 01 00 00       	mov    eax,0x185
   400f96:	eb 26                	jmp    400fbe <phase_3+0x7b>
-  400f98:	b8 ce 00 00 00       	mov    eax,0xce
+  + 400f98:	b8 ce 00 00 00       	mov    eax,0xce
   400f9d:	eb 1f                	jmp    400fbe <phase_3+0x7b>
-  400f9f:	b8 aa 02 00 00       	mov    eax,0x2aa
+  + 400f9f:	b8 aa 02 00 00       	mov    eax,0x2aa
   400fa4:	eb 18                	jmp    400fbe <phase_3+0x7b>
-  400fa6:	b8 47 01 00 00       	mov    eax,0x147
+  + 400fa6:	b8 47 01 00 00       	mov    eax,0x147
   400fab:	eb 11                	jmp    400fbe <phase_3+0x7b>
   400fad:	e8 88 04 00 00       	call   40143a <explode_bomb>
   400fb2:	b8 00 00 00 00       	mov    eax,0x0
   400fb7:	eb 05                	jmp    400fbe <phase_3+0x7b>
-  400fb9:	b8 37 01 00 00       	mov    eax,0x137
-  400fbe:	3b 44 24 0c          	cmp    eax,DWORD PTR [rsp+0xc]
+  //x=1
+    400fb9:	b8 37 01 00 00       	mov    eax,0x137
+    400fbe:	3b 44 24 0c          	cmp    eax,DWORD PTR [rsp+0xc] //和输入的第二位作比较， 第二位=
   400fc2:	74 05                	je     400fc9 <phase_3+0x86>
   400fc4:	e8 71 04 00 00       	call   40143a <explode_bomb>
   400fc9:	48 83 c4 18          	add    rsp,0x18
   400fcd:	c3                   	ret    
 
-0000000000400fce <func4>:
+0000000000400fce <func4>:(edx, esi, input x in edi)
   400fce:	48 83 ec 08          	sub    rsp,0x8
   400fd2:	89 d0                	mov    eax,edx
-  400fd4:	29 f0                	sub    eax,esi
-  400fd6:	89 c1                	mov    ecx,eax
-  400fd8:	c1 e9 1f             	shr    ecx,0x1f
-  400fdb:	01 c8                	add    eax,ecx
-  400fdd:	d1 f8                	sar    eax,1
-  400fdf:	8d 0c 30             	lea    ecx,[rax+rsi*1]
-  400fe2:	39 f9                	cmp    ecx,edi
+  400fd4:	29 f0                	sub    eax,esi  //esi = 0; eax = edx = 0xe
+  400fd6:	89 c1                	mov    ecx,eax  //ecx = 0xe
+  400fd8:	c1 e9 1f             	shr    ecx,0x1f //ecx = 0
+  400fdb:	01 c8                	add    eax,ecx //eax = 0xe
+  400fdd:	d1 f8                	sar    eax,1 //0x7 算术右移1位
+  400fdf:	8d 0c 30             	lea    ecx,[rax+rsi*1]   //ecx = rax = 0x7
+  400fe2:	39 f9                	cmp    ecx,edi // 0x7 ? 第一个输入
   400fe4:	7e 0c                	jle    400ff2 <func4+0x24>
   400fe6:	8d 51 ff             	lea    edx,[rcx-0x1]
   400fe9:	e8 e0 ff ff ff       	call   400fce <func4>
   400fee:	01 c0                	add    eax,eax
   400ff0:	eb 15                	jmp    401007 <func4+0x39>
-  400ff2:	b8 00 00 00 00       	mov    eax,0x0
-  400ff7:	39 f9                	cmp    ecx,edi
+  400ff2:	b8 00 00 00 00       	mov    eax,0x0 //eax = 0
+  400ff7:	39 f9                	cmp    ecx,edi 
   400ff9:	7d 0c                	jge    401007 <func4+0x39>
-  400ffb:	8d 71 01             	lea    esi,[rcx+0x1]
+  400ffb:	8d 71 01             	lea    esi,[rcx+0x1]  //esi = 0x1
   400ffe:	e8 cb ff ff ff       	call   400fce <func4>
-  401003:	8d 44 00 01          	lea    eax,[rax+rax*1+0x1]
+  401003:	8d 44 00 01          	lea    eax,[rax+rax*1+0x1] //必须为0
   401007:	48 83 c4 08          	add    rsp,0x8
   40100b:	c3                   	ret    
 
 000000000040100c <phase_4>:
-  40100c:	48 83 ec 18          	sub    rsp,0x18
-  401010:	48 8d 4c 24 0c       	lea    rcx,[rsp+0xc]
-  401015:	48 8d 54 24 08       	lea    rdx,[rsp+0x8]
-  40101a:	be cf 25 40 00       	mov    esi,0x4025cf
-  40101f:	b8 00 00 00 00       	mov    eax,0x0
+  40100c:	48 83 ec 18          	sub    rsp,0x18 //24 对应6个数字
+  401010:	48 8d 4c 24 0c       	lea    rcx,[rsp+0xc] //+12
+  401015:	48 8d 54 24 08       	lea    rdx,[rsp+0x8] //+8
+  40101a:	be cf 25 40 00       	mov    esi,0x4025cf  //输入两个数字
+  40101f:	b8 00 00 00 00       	mov    eax,0x0 //返回值
   401024:	e8 c7 fb ff ff       	call   400bf0 <__isoc99_sscanf@plt>
-  401029:	83 f8 02             	cmp    eax,0x2
-  40102c:	75 07                	jne    401035 <phase_4+0x29>
-  40102e:	83 7c 24 08 0e       	cmp    DWORD PTR [rsp+0x8],0xe
-  401033:	76 05                	jbe    40103a <phase_4+0x2e>
+  401029:	83 f8 02             	cmp    eax,0x2 //必须返回两个
+  40102c:	75 07                	jne    401035 <phase_4+0x29> //引爆
+  40102e:	83 7c 24 08 0e       	cmp    DWORD PTR [rsp+0x8],0xe //14 
+  401033:	76 05                	jbe    40103      eax = eax + eax*1 + 1;
+            return eax;a <phase_4+0x2e> //第一个输入必须<=14
   401035:	e8 00 04 00 00       	call   40143a <explode_bomb>
   40103a:	ba 0e 00 00 00       	mov    edx,0xe
   40103f:	be 00 00 00 00       	mov    esi,0x0
-  401044:	8b 7c 24 08          	mov    edi,DWORD PTR [rsp+0x8]
+  401044:	8b 7c 24 08          	mov    edi,DWORD PTR [rsp+0x8] //edi = 第一个输入
   401048:	e8 81 ff ff ff       	call   400fce <func4>
   40104d:	85 c0                	test   eax,eax
-  40104f:	75 07                	jne    401058 <phase_4+0x4c>
+  40104f:	75 07                	jne    401058 <phase_4+0x4c> //必须返回0
   401051:	83 7c 24 0c 00       	cmp    DWORD PTR [rsp+0xc],0x0
-  401056:	74 05                	je     40105d <phase_4+0x51>
+  401056:	74 05                	je     40105d <phase_4+0x51> //第二个输入此时要为0
   401058:	e8 dd 03 00 00       	call   40143a <explode_bomb>
   40105d:	48 83 c4 18          	add    rsp,0x18
   401061:	c3                   	ret    
