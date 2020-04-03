@@ -26,8 +26,12 @@ int func(int edx, int esi, int x){
 //use brute force to find the needed input---x
 int main(){
     for (int i = 0; i <= 14; i++){
-        if(func(14, 0, i) == 0)
-            printf("%d", i);
+        try:{
+            if(func(14, 0, i) == 0)
+                printf("%d", i);
+        }
+        catch:
+            continue;   
     }
     printf("%s", "finished!");
 }

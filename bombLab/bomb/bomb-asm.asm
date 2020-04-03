@@ -476,9 +476,9 @@ Disassembly of section .text:
   40106a:	64 48 8b 04 25 28 00 	mov    rax,QWORD PTR fs:0x28
   401071:	00 00 
   401073:	48 89 44 24 18       	mov    QWORD PTR [rsp+0x18],rax
-  401078:	31 c0                	xor    eax,eax
+  401078:	31 c0                	xor    eax,eax  //置0
   40107a:	e8 9c 02 00 00       	call   40131b <string_length>
-  40107f:	83 f8 06             	cmp    eax,0x6
+  40107f:	83 f8 06             	cmp    eax,0x6  //长度必须为6
   401082:	74 4e                	je     4010d2 <phase_5+0x70>
   401084:	e8 b1 03 00 00       	call   40143a <explode_bomb>
   401089:	eb 47                	jmp    4010d2 <phase_5+0x70>
