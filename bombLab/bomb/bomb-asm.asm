@@ -482,20 +482,20 @@ Disassembly of section .text:
   401082:	74 4e                	je     4010d2 <phase_5+0x70>
   401084:	e8 b1 03 00 00       	call   40143a <explode_bomb>
   401089:	eb 47                	jmp    4010d2 <phase_5+0x70>
-  40108b:	0f b6 0c 03          	movzx  ecx,BYTE PTR [rbx+rax*1]  //取了传入的字符串
+  40108b:	0f b6 0c 03          	movzx  ecx,BYTE PTR [rbx+rax*1]  //取了传入的字符串的第一位
   40108f:	88 0c 24             	mov    BYTE PTR [rsp],cl
   401092:	48 8b 14 24          	mov    rdx,QWORD PTR [rsp]
-  401096:	83 e2 0f             	and    edx,0xf
+  401096:	83 e2 0f             	and    edx,0xf//取低4位
   401099:	0f b6 92 b0 24 40 00 	movzx  edx,BYTE PTR [rdx+0x4024b0]
   4010a0:	88 54 04 10          	mov    BYTE PTR [rsp+rax*1+0x10],dl
   4010a4:	48 83 c0 01          	add    rax,0x1
   4010a8:	48 83 f8 06          	cmp    rax,0x6
   4010ac:	75 dd                	jne    40108b <phase_5+0x29>
-  4010ae:	c6 44 24 16 00       	mov    BYTE PTR [rsp+0x16],0x0
-  4010b3:	be 5e 24 40 00       	mov    esi,0x40245e
+  4010ae:	c6 44 24 16 00       	mov    BYTE PTR [rsp+0x16],0x0  //在末尾放入'\0'
+  4010b3:	be 5e 24 40 00       	mov    esi,0x40245e//字符串的地址 flyers
   4010b8:	48 8d 7c 24 10       	lea    rdi,[rsp+0x10]
   4010bd:	e8 76 02 00 00       	call   401338 <strings_not_equal>
-  4010c2:	85 c0                	test   eax,eax
+  4010c2:	85 c0                	test   eax,eax 必须为0
   4010c4:	74 13                	je     4010d9 <phase_5+0x77>
   4010c6:	e8 6f 03 00 00       	call   40143a <explode_bomb>
   4010cb:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
