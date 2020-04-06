@@ -472,7 +472,7 @@ Disassembly of section .text:
 0000000000401062 <phase_5>:
   401062:	53                   	push   rbx
   401063:	48 83 ec 20          	sub    rsp,0x20
-  401067:	48 89 fb             	mov    rbx,rdi
+  401067:	48 89 fb             	mov    rbx,rdi //将输入放入了rbx
   40106a:	64 48 8b 04 25 28 00 	mov    rax,QWORD PTR fs:0x28
   401071:	00 00 
   401073:	48 89 44 24 18       	mov    QWORD PTR [rsp+0x18],rax
@@ -482,7 +482,7 @@ Disassembly of section .text:
   401082:	74 4e                	je     4010d2 <phase_5+0x70>
   401084:	e8 b1 03 00 00       	call   40143a <explode_bomb>
   401089:	eb 47                	jmp    4010d2 <phase_5+0x70>
-  40108b:	0f b6 0c 03          	movzx  ecx,BYTE PTR [rbx+rax*1]
+  40108b:	0f b6 0c 03          	movzx  ecx,BYTE PTR [rbx+rax*1]  //取了传入的字符串
   40108f:	88 0c 24             	mov    BYTE PTR [rsp],cl
   401092:	48 8b 14 24          	mov    rdx,QWORD PTR [rsp]
   401096:	83 e2 0f             	and    edx,0xf
