@@ -4,5 +4,5 @@
 - [x] phase 3
 - [x] phase 4
 - [x] phase 5
-- [ ] phase 6
-- [ ] phase surprise
+- [x] phase 6
+- [ ] secrete phase

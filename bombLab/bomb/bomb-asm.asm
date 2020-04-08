@@ -523,53 +523,61 @@ Disassembly of section .text:
   401106:	e8 51 03 00 00       	call   40145c <read_six_numbers>
   40110b:	49 89 e6             	mov    r14,rsp
   40110e:	41 bc 00 00 00 00    	mov    r12d,0x0
-  401114:	4c 89 ed             	mov    rbp,r13
+  401114:	4c 89 ed             	mov    rbp,r13 //rsp //rbp = r13 = rsp + 4
   401117:	41 8b 45 00          	mov    eax,DWORD PTR [r13+0x0]
   40111b:	83 e8 01             	sub    eax,0x1
-  40111e:	83 f8 05             	cmp    eax,0x5
+  40111e:	83 f8 05             	cmp    eax,0x5 //第一个数小于等于6 //第2个数小于等于6
   401121:	76 05                	jbe    401128 <phase_6+0x34>
   401123:	e8 12 03 00 00       	call   40143a <explode_bomb>
-  401128:	41 83 c4 01          	add    r12d,0x1
-  40112c:	41 83 fc 06          	cmp    r12d,0x6
+  401128:	41 83 c4 01          	add    r12d,0x1//1 //2
+  40112c:	41 83 fc 06          	cmp    r12d,0x6//！= //！=
   401130:	74 21                	je     401153 <phase_6+0x5f>
-  401132:	44 89 e3             	mov    ebx,r12d
-  401135:	48 63 c3             	movsxd rax,ebx
-  401138:	8b 04 84             	mov    eax,DWORD PTR [rsp+rax*4]
-  40113b:	39 45 00             	cmp    DWORD PTR [rbp+0x0],eax
-  40113e:	75 05                	jne    401145 <phase_6+0x51>
+  401132:	44 89 e3             	mov    ebx,r12d //1 //2
+  401135:	48 63 c3             	movsxd rax,ebx | //1 //2 //3 //4 //5 | //2
+  401138:	8b 04 84             	mov    eax,DWORD PTR [rsp+rax*4]  | //第二个数 //第三个数 //4 //5 //6 | //3 
+  40113b:	39 45 00             	cmp    DWORD PTR [rbp+0x0],eax //根第一个数比较
+  40113e:	75 05                	jne    401145 <phase_6+0x51> //不能等
   401140:	e8 f5 02 00 00       	call   40143a <explode_bomb>
-  401145:	83 c3 01             	add    ebx,0x1
-  401148:	83 fb 05             	cmp    ebx,0x5
+  401145:	83 c3 01             	add    ebx,0x1 //2 //3 //4 //5 //6
+  401148:	83 fb 05             	cmp    ebx,0x5 //< //< //== //>
   40114b:	7e e8                	jle    401135 <phase_6+0x41>
-  40114d:	49 83 c5 04          	add    r13,0x4
+  40114d:	49 83 c5 04          	add    r13,0x4 //rsp+4
   401151:	eb c1                	jmp    401114 <phase_6+0x20>
-  401153:	48 8d 74 24 18       	lea    rsi,[rsp+0x18]
-  401158:	4c 89 f0             	mov    rax,r14
-  40115b:	b9 07 00 00 00       	mov    ecx,0x7
-  401160:	89 ca                	mov    edx,ecx
-  401162:	2b 10                	sub    edx,DWORD PTR [rax]
-  401164:	89 10                	mov    DWORD PTR [rax],edx
-  401166:	48 83 c0 04          	add    rax,0x4
-  40116a:	48 39 f0             	cmp    rax,rsi
+  //上面的代码分析完毕了，意思是输入的6个数都得小于6且互相不相等
+  401153:	48 8d 74 24 18       	lea    rsi,[rsp+0x18]  //8+16 = 24 
+  401158:	4c 89 f0             	mov    rax,r14         //rsp
+  40115b:	b9 07 00 00 00       	mov    ecx,0x7//ecx = 0x7
+  401160:	89 ca                	mov    edx,ecx         //edx = 0x7 // edx = 0x7
+  401162:	2b 10                	sub    edx,DWORD PTR [rax] //edx-=[rsp] //edx -= [rsp+4]
+  401164:	89 10                	mov    DWORD PTR [rax],edx //[rsp] = 0x7 - [rsp]
+  401166:	48 83 c0 04          	add    rax,0x4 //rax = rsp+4
+  40116a:	48 39 f0             	cmp    rax,rsi//rax < rsp + 6
   40116d:	75 f1                	jne    401160 <phase_6+0x6c>
-  40116f:	be 00 00 00 00       	mov    esi,0x0
-  401174:	eb 21                	jmp    401197 <phase_6+0xa3>
-  401176:	48 8b 52 08          	mov    rdx,QWORD PTR [rdx+0x8]
+  //上面的代码把七个x变成了7-x
+  40116f:	be 00 00 00 00       	mov    esi,0x0//esi = 0
+  401174:	eb 21                	jmp    401197 <phase_6+0xa3> //2
+
+  401176:	48 8b 52 08          	mov    rdx,QWORD PTR [rdx+0x8] //p = p->next
   40117a:	83 c0 01             	add    eax,0x1
   40117d:	39 c8                	cmp    eax,ecx
   40117f:	75 f5                	jne    401176 <phase_6+0x82>
-  401181:	eb 05                	jmp    401188 <phase_6+0x94>
-  401183:	ba d0 32 60 00       	mov    edx,0x6032d0
-  401188:	48 89 54 74 20       	mov    QWORD PTR [rsp+rsi*2+0x20],rdx
-  40118d:	48 83 c6 04          	add    rsi,0x4
-  401191:	48 83 fe 18          	cmp    rsi,0x18
+
+  401181:	eb 05                	jmp    401188 <phase_6+0x94> 
+  401183:	ba d0 32 60 00       	mov    edx,0x6032d0//6
+  
+  401188:	48 89 54 74 20       	mov    QWORD PTR [rsp+rsi*2+0x20],rdx //7 [rsp+0+32] = 0x6032d0
+  40118d:	48 83 c6 04          	add    rsi,0x4 //8 rsi=4
+  401191:	48 83 fe 18          	cmp    rsi,0x18 //9 4与24==>循环6次
   401195:	74 14                	je     4011ab <phase_6+0xb7>
-  401197:	8b 0c 34             	mov    ecx,DWORD PTR [rsp+rsi*1]
-  40119a:	83 f9 01             	cmp    ecx,0x1
-  40119d:	7e e4                	jle    401183 <phase_6+0x8f>
+
+  401197:	8b 0c 34             	mov    ecx,DWORD PTR [rsp+rsi*1] //3 ecx = [rsp] //11 ecx = [rsp+4]
+  40119a:	83 f9 01             	cmp    ecx,0x1//4 if [rsp] <= 0x1 //12 第二个元素和1比较
+  40119d:	7e e4                	jle    401183 <phase_6+0x8f>//5 //如果比1大就跳到链表
+
   40119f:	b8 01 00 00 00       	mov    eax,0x1
   4011a4:	ba d0 32 60 00       	mov    edx,0x6032d0
-  4011a9:	eb cb                	jmp    401176 <phase_6+0x82>
+  4011a9:	eb cb                	jmp    401176 <phase_6+0x82> 
+
   4011ab:	48 8b 5c 24 20       	mov    rbx,QWORD PTR [rsp+0x20]
   4011b0:	48 8d 44 24 28       	lea    rax,[rsp+0x28]
   4011b5:	48 8d 74 24 50       	lea    rsi,[rsp+0x50]
@@ -817,7 +825,7 @@ Disassembly of section .text:
   401480:	be c3 25 40 00       	mov    esi,0x4025c3
   401485:	b8 00 00 00 00       	mov    eax,0x0
   40148a:	e8 61 f7 ff ff       	call   400bf0 <__isoc99_sscanf@plt>
-  40148f:	83 f8 05             	cmp    eax,0x5
+  40148f:	83 f8 05             	cmp    eax,0x5 //返回值是参数的个数，所以必须大于5
   401492:	7f 05                	jg     401499 <read_six_numbers+0x3d>
   401494:	e8 a1 ff ff ff       	call   40143a <explode_bomb>
   401499:	48 83 c4 18          	add    rsp,0x18
