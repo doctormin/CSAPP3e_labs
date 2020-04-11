@@ -1,6 +1,6 @@
 # CSAPP3e_labs
 - [x] Data Lab
-- [ ] Bomb Lab
+- [x] Bomb Lab
 - [ ] Attack Lab
 - [ ] Architecture Lab
 - [ ] Cache Lab
