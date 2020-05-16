@@ -1,5 +1,9 @@
 #include "cachelab.h"
 #include "csim.h"
+/*
+ * Yimin Zhao (a.k.a. 赵一民)
+ * 518030910188
+ */
 
 void printUsage(){
     printf(
@@ -20,31 +24,44 @@ void printUsage(){
 
 void parseInput(int argc, char **argv){
     cache_info.verbose_flag = 0;
+    cache_info.argc_count = 0;
     int input;
-    while((input = getopt(argc, argv, "hvs:E:b:t:") != -1)){
+    while((input = getopt(argc, argv, "hvs:E:b:t:")) != -1){
         switch(input){
+            case 'h':
+                printUsage();
+                exit(0);
             case 's':
+                ++cache_info.argc_count;
                 cache_info.s = atoi(optarg);
                 break;
             case 'E':
+                ++cache_info.argc_count;
                 cache_info.E = atoi(optarg);
                 break;
             case 'b':
+                ++cache_info.argc_count;
                 cache_info.b = atoi(optarg); 
                 break;   
             case 'v':
                 cache_info.verbose_flag = 1;
                 break;
             case 't':
+                ++cache_info.argc_count;
                 trace = optarg;
                 break;
-            case 'h':
-                printUsage();
-                exit(0);
             default:
                 printUsage();
                 exit(-1);
         }
+    }
+    //The following code handles cases where the number of parameters is insufficient
+    switch(cache_info.argc_count){
+        case 4:
+            break;
+        default:
+            printUsage();
+            exit(-1);
     }
 }
 
@@ -54,15 +71,23 @@ void initCache(){
     cache_info.miss = 0;
     cache_info.hit = 0;
     cache_info.evict = 0;
-    //allocate sp//global variablesace
-    cache LRUcache;
-    LRUcache.sets = (cacheSet*) calloc (cache_info.S, sizeof(cacheSet));
+    cache.sets = (Set*) calloc (cache_info.S, sizeof(Set));
     for(int i = 0; i < cache_info.S; i++){
-        (LRUcache.sets)[i].lines = (setLine*) calloc (cache_info.E, sizeof(setLine));
+        (cache.sets)[i].lines = (Line*) calloc (cache_info.E, sizeof(Line));
         for(int k = 0; k < cache_info.E; k++){
-            ((LRUcache.sets)[i].lines)[k].block = (char*) calloc (cache_info.B, sizeof(char));
+            ((cache.sets)[i].lines)[k].block = (char*) calloc (cache_info.B, sizeof(char));
         }
     }
+}
+
+void cleanUp(){
+    for(int i = 0; i < cache_info.S; i++){  
+        for(int k = 0; k < cache_info.E; k++){
+            free(((cache.sets)[i].lines)[k].block);
+        }
+        free((cache.sets)[i].lines);
+    }
+    free(cache.sets);
 }
 
 void parseTrace(){
@@ -76,5 +101,6 @@ int main(int argc, char **argv)
 
     printSummary(cache_info.hit, cache_info.miss, cache_info.evict);
     printf("%d", cache_info.verbose_flag);
+    cleanUp();
     return 0;
 }

@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 //!functions
 void printUsage();
 
@@ -13,21 +14,23 @@ void initCache();
 
 void parseTrace();
 
+void cleanUp();
+
 //!global variables
 typedef struct{
     int valid;                        //valid bit     --- 1 bit
     unsigned long long tag;           //tag           --- t bits
     char* block;                      //block         --- b bits long
     int timeStamp;
-} setLine;
+} Line;
 
 typedef struct{
-    setLine *lines;
-} cacheSet;
+    Line *lines;
+} Set;
 
 typedef struct{
-    cacheSet *sets;
-} cache;
+    Set *sets;
+} Cache;
 
 typedef struct{
     int s;          // num of set index bits
@@ -39,8 +42,10 @@ typedef struct{
     int hit;
     int miss;
     int evict;
-} cachePara;
+    int argc_count;
+} cacheInfo;
 
-cachePara cache_info;
+cacheInfo cache_info;
+Cache cache;
 char *trace;
 #endif //CSAPP_CSIM_H
