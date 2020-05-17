@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
+typedef unsigned long long addr_t;
+
+typedef addr_t time_t;
+
 //!functions
 void printUsage();
 
@@ -16,12 +21,14 @@ void parseTrace();
 
 void cleanUp();
 
+int simulate(char op, addr_t address);
+
 //!global variables
 typedef struct{
     int valid;                        //valid bit     --- 1 bit
-    unsigned long long tag;           //tag           --- t bits
+    addr_t tag;           //tag           --- t bits
     char* block;                      //block         --- b bits long
-    int timeStamp;
+    time_t timeStamp;
 } Line;
 
 typedef struct{
@@ -34,9 +41,9 @@ typedef struct{
 
 typedef struct{
     int s;          // num of set index bits
-    int S; 
+    int S;          // num of sets
     int b;          // num of block bits
-    int B;
+    int B;          // num of blocks
     int E;          // num of lines per set
     int verbose_flag;
     int hit;
@@ -48,4 +55,5 @@ typedef struct{
 cacheInfo cache_info;
 Cache cache;
 char *trace;
+time_t timeGlobal;
 #endif //CSAPP_CSIM_H
